@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Ruota della Gentilezza - Cresci come un Fiore</title>
+  <!-- Google Fonts per un tocco caldo e leggibile da albo illustrato -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --paper-white: #fcfbf7;
+      --lime-light: #e5f0be;
+      --lime-mid: #b7d66b;
+      --lime-bright: #98c347;
+      --forest-green: #467338;
+      --sage-green: #6d8f72;
+      --denim-blue: #4a6fa5;
+      --mauve-pink: #c490b3;
+      --honey-yellow: #f2c94c;
+      --terracotta: #d97b59;
+      --ink-dark: #2f3a2c;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Fredoka', 'Patrick Hand', sans-serif;
+      background-color: var(--paper-white);
+      color: var(--ink-dark);
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Sfondo ispirato all'albo illustrato "Cresci come un fiore":
+       carta bianca calda in alto e strisce verticali morbide ad acquerello verde lime/pistacchio in basso */
+    .storybook-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-color: var(--paper-white);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(229, 240, 190, 0.25) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(196, 144, 179, 0.14) 0%, transparent 40%);
+    }
+
+    /* Fascia a strisce verticali acquerellate con bordo superiore cucito */
+    .watercolor-wallpaper {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 85px;
+      height: 36vh;
+      min-height: 220px;
+      z-index: -1;
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(183, 214, 107, 0.36) 0px,
+        rgba(163, 201, 83, 0.44) 28px,
+        rgba(229, 240, 190, 0.2) 34px,
+        rgba(252, 251, 247, 0.92) 38px,
+        rgba(252, 251, 247, 0.92) 72px
+      );
+      border-top: 4px dashed #5d8242;
+      border-bottom: 4px dashed #5d8242;
+      box-shadow: inset 0 6px 14px rgba(152, 195, 71, 0.15), inset 0 -6px 14px rgba(152, 195, 71, 0.15);
+    }
+
+    .ground-strip {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 85px;
+      z-index: -1;
+      background: linear-gradient(180deg, #fcfbf7 0%, #f4f1e6 100%);
+    }
+
+    /* Effetto ritaglio di carta e cucitura artigianale */
+    .paper-cutout {
+      background: #ffffff;
+      border: 3px solid #5d8242;
+      border-radius: 24px;
+      box-shadow: 0 8px 0 rgba(93, 130, 66, 0.22), 0 12px 24px rgba(47, 58, 44, 0.08);
+      position: relative;
+    }
+
+    .stitched-border {
+      position: relative;
+    }
+    .stitched-border::after {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border: 2px dashed rgba(93, 130, 66, 0.45);
+      border-radius: 18px;
+      pointer-events: none;
+    }
+
+    /* Bottone stile collage artigianale */
+    .craft-btn {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      border-radius: 9999px;
+      border: 3px solid #3c5c2e;
+      box-shadow: 0 5px 0 #3c5c2e, 0 8px 15px rgba(0, 0, 0, 0.12);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .craft-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 #3c5c2e, 0 10px 18px rgba(0, 0, 0, 0.15);
+      filter: brightness(1.04);
+    }
+
+    .craft-btn:active:not(:disabled) {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #3c5c2e;
+    }
+
+    .craft-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Contenitore Ruota */
+    .wheel-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 470px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+    }
+
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 50%;
+      box-shadow: 0 12px 28px rgba(47, 58, 44, 0.22), inset 0 0 0 8px #5d8242;
+      cursor: pointer;
+    }
+
+    /* Pulsante centrale della ruota */
+    .spin-center-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 102px;
+      height: 102px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ffe066, #f2b729);
+      border: 5px solid #467338;
+      box-shadow: 0 6px 0 #35592a, 0 10px 20px rgba(0, 0, 0, 0.25);
+      color: #2f3a2c;
+      font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .spin-center-btn:hover:not(:disabled) {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+
+    .spin-center-btn:active:not(:disabled) {
+      transform: translate(-50%, -47%) scale(0.98);
+      box-shadow: 0 2px 0 #35592a;
+    }
+
+    .spin-center-btn:disabled {
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+    }
+
+    /* Puntatore in alto */
+    .wheel-pointer {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
+      pointer-events: none;
+      transition: transform 0.08s ease;
+    }
+
+    .wheel-pointer.tick {
+      transform: translateX(-50%) rotate(-14deg);
+    }
+
+    /* Caselline della frase segreta */
+    .word-group {
+      display: inline-flex;
+      flex-wrap: nowrap;
+      gap: 4px;
+      margin: 4px 8px;
+      align-items: flex-end;
+    }
+
+    .letter-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 34px;
+      position: relative;
+    }
+
+    @media (min-width: 640px) {
+      .letter-slot {
+        width: 38px;
+      }
+    }
+
+    .letter-box {
+      width: 100%;
+      height: 40px;
+      border: 2.5px solid #6b8e4e;
+      border-radius: 10px;
+      background-color: #fcfbf7;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+      color: #2f3a2c;
+      box-shadow: 0 3px 0 rgba(107, 142, 78, 0.35);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding: 0;
+      outline: none;
+    }
+
+    @media (min-width: 640px) {
+      .letter-box {
+        height: 44px;
+        font-size: 1.45rem;
+      }
+    }
+
+    .letter-box:focus {
+      border-color: #4a6fa5;
+      background-color: #eef5ff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 rgba(74, 111, 165, 0.4);
+    }
+
+    .letter-box.highlighted-num {
+      border-color: #e69d24;
+      background-color: #fff9db;
+      animation: pulseGlow 1.3s infinite alternate;
+    }
+
+    .letter-box.solved {
+      background-color: #dff2b6;
+      border-color: #467338;
+      color: #264d1c;
+      box-shadow: 0 3px 0 #467338;
+    }
+
+    .letter-box.wrong-shake {
+      animation: shakeBox 0.4s ease;
+      background-color: #ffe3e3;
+      border-color: #d9534f;
+    }
+
+    .code-number {
+      margin-top: 3px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #4a6fa5;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0 4px;
+      border-radius: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .code-number.discovered-code {
+      color: #356828;
+      background: #e2f3be;
+    }
+
+    /* Animazioni fiori e feedback */
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 0 0 rgba(242, 201, 76, 0.6); }
+      to { box-shadow: 0 0 0 6px rgba(242, 201, 76, 0); }
+    }
+
+    @keyframes shakeBox {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    @keyframes bloomPop {
+      0% { transform: translate(-50%, 0) scale(0.2) rotate(-20deg); opacity: 0; }
+      55% { transform: translate(-50%, -26px) scale(1.25) rotate(10deg); opacity: 1; }
+      100% { transform: translate(-50%, -38px) scale(1) rotate(0deg); opacity: 0; }
+    }
+
+    .bloom-particle {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      pointer-events: none;
+      font-size: 1.4rem;
+      z-index: 30;
+      animation: bloomPop 1.1s ease-out forwards;
+    }
+
+    @keyframes floatSway {
+      0%, 100% { transform: rotate(-2deg) translateY(0); }
+      50% { transform: rotate(2deg) translateY(4px); }
+    }
+
+    .hanging-plant-anim {
+      transform-origin: top center;
+      animation: floatSway 5s ease-in-out infinite;
+    }
+
+    @keyframes petalFall {
+      0% {
+        transform: translateY(-10vh) rotate(0deg) translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) rotate(540deg) translateX(45px);
+        opacity: 0.2;
+      }
+    }
+
+    .confetti-petal {
+      position: fixed;
+      top: -40px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: petalFall linear forwards;
+    }
+
+    /* Stili di stampa */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+      }
+      .paper-cutout {
+        box-shadow: none !important;
+        border: 2px solid #467338 !important;
+      }
+    }
+  </style>
+</head>
+<body class="pb-28">
+  <!-- Sfondo acquerellato e carta -->
+  <div class="storybook-bg"></div>
+  <div class="watercolor-wallpaper"></div>
+  <div class="ground-strip"></div>
+
+  <!-- DECORAZIONI ILLUSTRATE ISPIRATE ALL'ALBO "CRESCI COME UN FIORE" -->
+  <!-- 1. Vaso blu appeso in alto a sinistra con foglie verdi ricadenti -->
+  <div class="fixed top-0 left-2 sm:left-6 z-0 pointer-events-none hanging-plant-anim opacity-95">
+    <svg width="110" height="230" viewBox="0 0 110 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Filo blu cucito -->
+      <line x1="55" y1="0" x2="55" y2="55" stroke="#4a6fa5" stroke-width="3" stroke-dasharray="5 3" />
+      <path d="M55 55 L32 95 M55 55 L78 95" stroke="#4a6fa5" stroke-width="3" stroke-linecap="round" />
+      <!-- Foglie verdi acquerello -->
+      <path d="M35 95 C12 85, 8 115, 22 135 C8 155, 16 185, 28 195" stroke="#4d7c3f" stroke-width="3" fill="none" />
+      <ellipse cx="18" cy="105" rx="11" ry="5" transform="rotate(-30 18 105)" fill="#8ab843" stroke="#467338" stroke-width="1.5" />
+      <ellipse cx="15" cy="138" rx="12" ry="5" transform="rotate(20 15 138)" fill="#a3c953" stroke="#467338" stroke-width="1.5" />
+      <ellipse cx="22" cy="172" rx="11" ry="5" transform="rotate(-25 22 172)" fill="#75a638" stroke="#467338" stroke-width="1.5" />
+      <path d="M75 95 C98 90, 102 120, 88 145 C98 168, 86 198, 72 215" stroke="#4d7c3f" stroke-width="3" fill="none" />
+      <ellipse cx="92" cy="112" rx="11" ry="5" transform="rotate(30 92 112)" fill="#98c347" stroke="#467338" stroke-width="1.5" />
+      <ellipse cx="90" cy="148" rx="12" ry="5" transform="rotate(-20 90 148)" fill="#b7d66b" stroke="#467338" stroke-width="1.5" />
+      <ellipse cx="80" cy="188" rx="11" ry="5" transform="rotate(25 80 188)" fill="#75a638" stroke="#467338" stroke-width="1.5" />
+      <!-- Vasetto blu a pois -->
+      <path d="M32 95 H78 L72 132 C71 136 67 138 63 138 H47 C43 138 39 136 38 132 L32 95 Z" fill="#4a6fa5" stroke="#2c466e" stroke-width="2.5" />
+      <rect x="29" y="90" width="52" height="9" rx="4" fill="#5c84bd" stroke="#2c466e" stroke-width="2.5" />
+      <circle cx="44" cy="112" r="2.5" fill="#dce8f8" />
+      <circle cx="55" cy="118" r="2.5" fill="#dce8f8" />
+      <circle cx="66" cy="111" r="2.5" fill="#dce8f8" />
+      <circle cx="48" cy="127" r="2.2" fill="#dce8f8" />
+      <circle cx="62" cy="126" r="2.2" fill="#dce8f8" />
+    </svg>
+  </div>
+
+  <!-- 2. Finestra verde con tendina ricamata e procione curioso (visibile sullo sfondo a sinistra/centro-basso su desktop) -->
+  <div class="hidden xl:block fixed bottom-[95px] left-6 z-0 pointer-events-none opacity-95">
+    <svg width="210" height="235" viewBox="0 0 210 235" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Cornice finestra verde lime -->
+      <path d="M18 35 Q105 12 192 35 L192 220 L18 220 Z" fill="#a3c953" stroke="#4d7c3f" stroke-width="4" />
+      <path d="M24 41 Q105 20 186 41 L186 214 L24 214 Z" fill="none" stroke="#6a9942" stroke-width="2" stroke-dasharray="6 4" />
+      <!-- Vetro azzurro chiaro -->
+      <rect x="38" y="52" width="134" height="145" rx="6" fill="#eef6f8" stroke="#4d7c3f" stroke-width="3" />
+      <!-- Simpatico procione curioso -->
+      <g transform="translate(52, 86)">
+        <!-- Orecchie -->
+        <path d="M16 32 L12 6 L34 20 Z" fill="#6e7375" stroke="#2f3336" stroke-width="2.5" stroke-linejoin="round" />
+        <path d="M90 32 L94 6 L72 20 Z" fill="#6e7375" stroke="#2f3336" stroke-width="2.5" stroke-linejoin="round" />
+        <!-- Testa -->
+        <ellipse cx="53" cy="54" rx="42" ry="35" fill="#8b9094" stroke="#2f3336" stroke-width="2.5" />
+        <!-- Mascherina procione -->
+        <path d="M20 48 Q34 36 48 50 Q42 66 24 62 Z" fill="#2f3336" />
+        <path d="M86 48 Q72 36 58 50 Q64 66 82 62 Z" fill="#2f3336" />
+        <!-- Occhi espressivi -->
+        <circle cx="36" cy="51" r="7" fill="#ffffff" />
+        <circle cx="37" cy="52" r="3.5" fill="#1a1c1e" />
+        <circle cx="70" cy="51" r="7" fill="#ffffff" />
+        <circle cx="69" cy="52" r="3.5" fill="#1a1c1e" />
+        <!-- Musetto bianco e naso -->
+        <ellipse cx="53" cy="66" rx="15" ry="11" fill="#f7f7f5" />
+        <ellipse cx="53" cy="61" rx="6" ry="4" fill="#232629" />
+        <!-- Zampine appoggiate al vetro -->
+        <ellipse cx="26" cy="92" rx="11" ry="14" fill="#474b4e" stroke="#232629" stroke-width="2" />
+        <ellipse cx="80" cy="92" rx="11" ry="14" fill="#474b4e" stroke="#232629" stroke-width="2" />
+      </g>
+      <!-- Bastone di legno e tendina ricamata bianca -->
+      <line x1="28" y1="50" x2="182" y2="50" stroke="#7c5836" stroke-width="5" stroke-linecap="round" />
+      <path d="M38 52 H172 V82 L162 72 L152 86 L142 72 L132 84 L122 70 L105 88 L88 70 L78 84 L68 72 L58 86 L48 72 L38 82 Z" fill="#ffffff" stroke="#cbd5d8" stroke-width="2" />
+      <!-- Pomello ottone -->
+      <circle cx="30" cy="135" r="7" fill="#d4af37" stroke="#5c4912" stroke-width="2" />
+    </svg>
+  </div>
+
+  <!-- 3. Elementi in basso: Annaffiatoio verde salvia, attrezzi, vasetti di marmellata e cestino di mele -->
+  <div class="fixed bottom-1 left-2 right-2 flex justify-between items-end pointer-events-none z-0 opacity-95">
+    <!-- Annaffiatoio e attrezzi a sinistra -->
+    <svg width="230" height="105" viewBox="0 0 230 105" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-44 sm:w-56 h-auto">
+      <!-- Rametti verdi dietro -->
+      <path d="M90 92 Q125 65 175 88" stroke="#467338" stroke-width="4" stroke-linecap="round" />
+      <path d="M110 92 Q145 55 190 78" stroke="#6aa144" stroke-width="3.5" stroke-linecap="round" />
+      <!-- Annaffiatoio verde salvia -->
+      <path d="M115 48 H158 L164 88 H109 Z" fill="#7c9c82" stroke="#3c5441" stroke-width="2.5" stroke-linejoin="round" />
+      <path d="M124 48 C124 22, 168 22, 168 52 C168 64, 162 70, 159 72" stroke="#58755e" stroke-width="5" fill="none" stroke-linecap="round" />
+      <path d="M112 76 L84 54" stroke="#7c9c82" stroke-width="7" stroke-linecap="round" />
+      <path d="M84 54 L76 62 L88 46 Z" fill="#638269" stroke="#3c5441" stroke-width="2" />
+      <!-- Paletta -->
+      <g transform="translate(18, 52) rotate(-32)">
+        <rect x="0" y="18" width="7" height="24" rx="3" fill="#638f56" stroke="#2f4a27" stroke-width="1.8" />
+        <path d="M-4 18 L11 18 L9 2 Q3.5 -4 -2 2 Z" fill="#8fa399" stroke="#3c4a43" stroke-width="1.8" />
+      </g>
+      <!-- Rastrello -->
+      <g transform="translate(46, 56) rotate(-28)">
+        <rect x="4" y="16" width="6" height="25" rx="3" fill="#638f56" stroke="#2f4a27" stroke-width="1.8" />
+        <path d="M-2 16 H16 M0 16 V4 M7 16 V3 M14 16 V4" stroke="#5d7066" stroke-width="2.5" stroke-linecap="round" />
+      </g>
+    </svg>
+
+    <!-- Vasetti illustrati (Limone, Fragola, Uva) e cestino di mele verdi a destra -->
+    <svg width="260" height="105" viewBox="0 0 260 105" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-48 sm:w-64 h-auto">
+      <!-- Vasetto grande Limone -->
+      <rect x="14" y="24" width="44" height="66" rx="10" fill="#ffffff" stroke="#475443" stroke-width="2.2" />
+      <rect x="20" y="16" width="32" height="9" rx="3" fill="#f2b729" stroke="#7a5808" stroke-width="2" />
+      <circle cx="36" cy="56" r="14" fill="#fff7d6" stroke="#d4a62a" stroke-width="1.5" />
+      <ellipse cx="36" cy="56" rx="9" ry="6" transform="rotate(-25 36 56)" fill="#f2c94c" stroke="#8a6c11" stroke-width="1.5" />
+      <!-- Vasetto Uva -->
+      <rect x="64" y="46" width="38" height="46" rx="9" fill="#f2f7fa" stroke="#475443" stroke-width="2.2" />
+      <rect x="69" y="39" width="28" height="8" rx="3" fill="#a86495" stroke="#592c4d" stroke-width="2" />
+      <circle cx="80" cy="68" r="3" fill="#9b59b6" />
+      <circle cx="86" cy="68" r="3" fill="#9b59b6" />
+      <circle cx="83" cy="73" r="3" fill="#8e44ad" />
+      <!-- Vasetto piccolo Fragola -->
+      <rect x="42" y="58" width="34" height="38" rx="9" fill="#ffffff" stroke="#475443" stroke-width="2.2" />
+      <rect x="46" y="51" width="26" height="8" rx="3" fill="#d9534f" stroke="#73201e" stroke-width="2" />
+      <path d="M59 71 C54 71 53 77 59 83 C65 77 64 71 59 71 Z" fill="#e74c3c" />
+      <path d="M56 71 L59 68 L62 71" stroke="#467338" stroke-width="2" />
+
+      <!-- Cestino di mele verdi -->
+      <g transform="translate(118, 30)">
+        <!-- Mele verdi -->
+        <circle cx="25" cy="24" r="11" fill="#8ab843" stroke="#3d6122" stroke-width="2" />
+        <circle cx="46" cy="20" r="12" fill="#a3c953" stroke="#3d6122" stroke-width="2" />
+        <circle cx="68" cy="23" r="11" fill="#75a638" stroke="#3d6122" stroke-width="2" />
+        <circle cx="88" cy="27" r="11" fill="#b7d66b" stroke="#3d6122" stroke-width="2" />
+        <circle cx="36" cy="34" r="11" fill="#689930" stroke="#3d6122" stroke-width="2" />
+        <circle cx="58" cy="34" r="12" fill="#98c347" stroke="#3d6122" stroke-width="2" />
+        <circle cx="78" cy="35" r="11" fill="#75a638" stroke="#3d6122" stroke-width="2" />
+        <!-- Cestino intrecciato rosa/beige -->
+        <path d="M12 36 H102 L90 66 H24 Z" fill="#edd1d8" stroke="#8c5c69" stroke-width="2.2" stroke-linejoin="round" />
+        <path d="M22 46 H94 M25 56 H91" stroke="#c490b3" stroke-width="2" stroke-dasharray="5 4" />
+        <!-- Mele cadute davanti -->
+        <circle cx="45" cy="66" r="10" fill="#a3c953" stroke="#3d6122" stroke-width="2" />
+        <circle cx="66" cy="65" r="10" fill="#689930" stroke="#3d6122" stroke-width="2" />
+        <circle cx="86" cy="68" r="10" fill="#b7d66b" stroke="#3d6122" stroke-width="2" />
+      </g>
+    </svg>
+  </div>
+
+  <!-- CONTENITORE PRINCIPALE DELL'APPLICAZIONE -->
+  <div class="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6">
+    <!-- INTESTAZIONE -->
+    <header class="paper-cutout stitched-border px-4 py-3 sm:px-6 sm:py-4 mb-5 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3 text-center md:text-left">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#e5f0be] border-2 border-[#467338] flex items-center justify-center text-3xl shadow-sm shrink-0">
+          🌼
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-[#35592a] tracking-tight leading-tight">
+            La Ruota della Gentilezza
+          </h1>
+          <p class="text-sm sm:text-base text-[#5b7548] font-medium">
+            Ispirato a <em>“Cresci come un fiore”</em> • Matematica di 3ª Primaria
+          </p>
+        </div>
+      </div>
+
+      <!-- Barra strumenti (Audio, Aiuto, Nuova Partita, Stampa) -->
+      <div class="flex flex-wrap items-center justify-center gap-2 no-print">
+        <button id="soundToggleBtn" onclick="toggleSound()" class="craft-btn bg-[#e5f0be] text-[#2f3a2c] px-3.5 py-2 text-sm flex items-center gap-1.5" title="Attiva o disattiva i suoni">
+          <span id="soundIcon">🔊</span>
+          <span class="hidden sm:inline">Suoni</span>
+        </button>
+        <button id="helpBtn" onclick="useHint()" class="craft-btn bg-[#f2c94c] text-[#2f3a2c] px-3.5 py-2 text-sm flex items-center gap-1.5" title="Scopri un piccolo aiuto">
+          <span>💡</span>
+          <span>Aiuto (<span id="hintsLeft">3</span>)</span>
+        </button>
+        <button onclick="resetGameNewNumbers()" class="craft-btn bg-[#c490b3] text-white px-3.5 py-2 text-sm flex items-center gap-1.5" title="Genera nuove operazioni">
+          <span>🔄</span>
+          <span>Nuovi Calcoli</span>
+        </button>
+        <button onclick="window.print()" class="craft-btn bg-[#4a6fa5] text-white px-3.5 py-2 text-sm flex items-center gap-1.5" title="Stampa la scheda">
+          <span>🖨️</span>
+          <span class="hidden sm:inline">Stampa</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- LAYOUT PRINCIPALE: A sinistra la Ruota, a destra la Frase Misteriosa -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- COLONNA SINISTRA: RUOTA DELLA FORTUNA -->
+      <section class="lg:col-span-5 paper-cutout p-4 sm:p-6 flex flex-col items-center">
+        <div class="w-full flex items-center justify-between mb-3">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e5f0be] text-[#35592a] font-bold text-sm border border-[#6b8e4e]">
+            🎡 1. Gira la ruota
+          </span>
+          <span id="progressBadge" class="text-sm font-bold text-[#4a6fa5] bg-[#eef5ff] px-3 py-1 rounded-full border border-[#4a6fa5]">
+            Lettere: 0 / 18
+          </span>
+        </div>
+
+        <!-- Ruota Interattiva -->
+        <div class="wheel-wrapper my-2">
+          <!-- Puntatore in alto -->
+          <div id="wheelPointer" class="wheel-pointer">
+            <svg width="44" height="48" viewBox="0 0 44 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 46 L5 14 C2 8 7 2 14 2 H30 C37 2 42 8 39 14 L22 46 Z" fill="#d9534f" stroke="#2f3a2c" stroke-width="3" stroke-linejoin="round" />
+              <circle cx="22" cy="13" r="5" fill="#fff3cd" />
+            </svg>
+          </div>
+
+          <canvas id="wheelCanvas"></canvas>
+
+          <!-- Pulsante centrale -->
+          <button id="spinBtn" onclick="spinWheel()" class="spin-center-btn" aria-label="Gira la ruota">
+            <span class="text-lg">🌱</span>
+            <span>GIRA LA<br>RUOTA!</span>
+          </button>
+        </div>
+
+        <p class="text-center text-xs sm:text-sm text-[#5b7548] mt-3 font-medium">
+          Premi <strong>GIRA LA RUOTA!</strong> oppure tocca uno spicchio colorato per scegliere l'operazione.
+        </p>
+
+        <!-- RIQUADRO OPERAZIONE CORRENTE -->
+        <div id="operationCard" class="w-full mt-4 p-4 rounded-2xl bg-[#fcfbf7] border-2 border-[#6b8e4e] transition-all">
+          <div id="opIdleState" class="text-center py-2">
+            <p class="text-base sm:text-lg font-bold text-[#35592a]">
+              Pronto a far sbocciare una lettera? 🌸
+            </p>
+            <p class="text-sm text-[#5b7548] mt-1">
+              Gira la ruota per pescare un'operazione matematica!
+            </p>
+          </div>
+
+          <div id="opActiveState" class="hidden">
+            <div class="flex items-center justify-between mb-1">
+              <span id="opTypeBadge" class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#e5f0be] text-[#35592a]">
+                Addizione
+              </span>
+              <span class="text-xs font-bold text-[#c490b3]">
+                Scopri il numero segreto!
+              </span>
+            </div>
+
+            <div class="my-2 p-3 rounded-xl bg-white border-2 border-dashed border-[#a3c953] text-center">
+              <div id="opExpression" class="text-2xl sm:text-3xl font-bold text-[#2f3a2c] tracking-wide">
+                245 + 132 = ?
+              </div>
+              <div id="opTargetLetterHint" class="text-sm font-bold text-[#4a6fa5] mt-1">
+                Lettera dello spicchio: A
+              </div>
+            </div>
+
+            <form id="answerForm" onsubmit="checkMathAnswer(event)" class="flex items-center justify-center gap-2 mt-3">
+              <input
+                type="number"
+                id="answerInput"
+                inputmode="numeric"
+                placeholder="Risultato"
+                required
+                class="w-32 sm:w-36 h-12 text-center text-xl font-bold rounded-xl border-2 border-[#4a6fa5] bg-white focus:outline-none focus:ring-4 focus:ring-[#4a6fa5]/25"
+              />
+              <button type="submit" class="craft-btn bg-[#98c347] text-[#1f3618] px-5 h-12 text-base">
+                Verifica ✓
+              </button>
+            </form>
+          </div>
+
+          <!-- Messaggio di feedback dell'operazione -->
+          <div id="opFeedback" class="mt-3 text-center text-sm sm:text-base font-bold min-h-[24px]"></div>
+        </div>
+      </section>
+
+      <!-- COLONNA DESTRA: FRASE SEGRETA E CHIAVE DELLE LETTERE -->
+      <section class="lg:col-span-7 flex flex-col gap-5">
+        <!-- Riquadro Frase Misteriosa -->
+        <div class="paper-cutout p-4 sm:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f6e8f1] text-[#6e3b5e] font-bold text-sm border border-[#c490b3]">
+              ✍️ 2. Decifra il messaggio segreto
+            </span>
+            <span id="selectedLetterBanner" class="text-xs sm:text-sm font-bold text-[#35592a] bg-[#e5f0be] px-3 py-1 rounded-full hidden">
+              Inserisci la lettera scoperta nelle caselle evidenziate!
+            </span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-[#5b7548] mb-3">
+            Quando risolvi un'operazione, scrivi la lettera corrispondente nelle caselline con quel numero (puoi anche cliccare una lettera nella chiave qui sotto per inserirla subito!).
+          </p>
+
+          <!-- Griglia delle parole e caselle -->
+          <div id="phraseContainer" class="p-3 sm:p-4 rounded-2xl bg-[#f7faee] border-2 border-[#b7d66b] flex flex-wrap justify-center items-center leading-relaxed">
+            <!-- Generato dinamicamente via JS -->
+          </div>
+
+          <!-- Banner di incoraggiamento continuo -->
+          <div id="liveEncouragement" class="mt-3 text-center font-bold text-[#467338] text-sm sm:text-base min-h-[26px] transition-all">
+            Ogni risposta giusta fa crescere il giardino della gentilezza! 🌿
+          </div>
+        </div>
+
+        <!-- Legenda / Chiave delle Lettere Scoperte -->
+        <div class="paper-cutout p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-base sm:text-lg font-bold text-[#35592a] flex items-center gap-2">
+              <span>🔑</span>
+              <span>Chiave delle Lettere Scoperte</span>
+            </h2>
+            <span class="text-xs text-[#5b7548] font-medium">
+              Tocca una tessera sbloccata per evidenziare le sue caselle
+            </span>
+          </div>
+
+          <div id="legendGrid" class="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-2">
+            <!-- Generato dinamicamente via JS -->
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODALE DI VITTORIA FINALE -->
+  <div id="victoryModal" class="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="paper-cutout stitched-border max-w-lg w-full p-6 sm:p-8 text-center bg-[#fcfbf7] transform transition-all scale-100">
+      <div class="text-5xl sm:text-6xl mb-3">🌻🌷🌼</div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-[#35592a] mb-2">
+        Meraviglioso! Il giardino è fiorito!
+      </h2>
+      <p class="text-sm sm:text-base text-[#5b7548] mb-4">
+        Hai risolto tutte le operazioni e hai scoperto il messaggio segreto della gentilezza:
+      </p>
+      <div class="p-4 rounded-2xl bg-[#e5f0be] border-2 border-[#467338] text-lg sm:text-xl font-bold text-[#264d1c] mb-6 leading-snug shadow-inner">
+        “I FIORI RENDONO PIÙ BELLI I GIARDINI COME LA GENTILEZZA RENDE PIÙ BELLO IL NOSTRO CUORE.”
+      </div>
+      <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="closeVictoryModal()" class="craft-btn bg-[#e5f0be] text-[#2f3a2c] px-5 py-2.5 text-base">
+          Ammira il Giardino 🌿
+        </button>
+        <button onclick="closeVictoryModal(); resetGameNewNumbers();" class="craft-btn bg-[#f2c94c] text-[#2f3a2c] px-5 py-2.5 text-base">
+          Gioca Ancora 🔄
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * LA RUOTA DELLA GENTILEZZA - CRESCI COME UN FIORE
+     * Logica completa: generazione operazioni di 3ª primaria con 18 risultati univoci,
+     * rendering ruota Canvas interattiva, sintesi audio Web Audio API e decifrazione frase.
+     */
+
+    const SECRET_PHRASE = "I FIORI RENDONO PIÙ BELLI I GIARDINI COME LA GENTILEZZA RENDE PIÙ BELLO IL NOSTRO CUORE.";
+
+    // Normalizza la U accentata per il confronto e la mappatura univoca
+    function normalizeChar(ch) {
+      if (ch === 'Ù' || ch === 'ù') return 'U';
+      return ch.toUpperCase();
+    }
+
+    // Le 18 lettere univoche presenti nella frase
+    const UNIQUE_LETTERS = ['I', 'F', 'O', 'R', 'E', 'N', 'D', 'P', 'U', 'B', 'L', 'G', 'A', 'C', 'M', 'Z', 'T', 'S'];
+
+    // Frasi di incoraggiamento positive
+    const ENCOURAGEMENTS = [
+      "Bravissimo! Un nuovo germoglio è spuntato! 🌱",
+      "Fantastico! Ottimo calcolo matematico! 🌼",
+      "Meraviglioso! Sei un vero campione! 🌻",
+      "Evviva! Un altro petalo colorato per te! 🌸",
+      "Stupendo! Il giardino diventa sempre più bello! 🌷",
+      "Grande lavoro! La gentilezza e la matematica fanno squadra! ✨"
+    ];
+
+    // Palette pastello/acquerello alternata per i 18 spicchi della ruota
+    const SLICE_COLORS = [
+      "#d9e8a3", // Verde pistacchio chiaro
+      "#fce694", // Giallo miele tenue
+      "#e8cde0", // Lilla malva delicato
+      "#cce3f5", // Azzurro cielo acquerello
+      "#b7d66b", // Verde lime morbido
+      "#fad4b8"  // Pesca caldo
+    ];
+
+    // Stato del gioco
+    let slices = []; // Array di 18 oggetti { letter, result, expression, type, solved, color }
+    let currentRotation = 0;
+    let isSpinning = false;
+    let selectedSliceIndex = null;
+    let soundEnabled = true;
+    let hintsRemaining = 3;
+    let audioCtx = null;
+    let slotElements = []; // Riferimenti agli input delle caselline
+
+    // Inizializza AudioContext al primo gesto dell'utente
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          audioCtx = new AudioContext();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+    }
+
+    // Sintesi suoni delicati e festosi (Web Audio API)
+    function playTickSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(260, audioCtx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.045);
+    }
+
+    function playSuccessSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // Do5, Mi5, Sol5, Do6
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        const start = audioCtx.currentTime + i * 0.09;
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.14, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.3);
+      });
+    }
+
+    function playGentleErrorSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(260, audioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(210, audioCtx.currentTime + 0.22);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.24);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.25);
+    }
+
+    function playVictoryFanfare() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      const melody = [
+        { f: 523.25, t: 0, d: 0.15 },
+        { f: 659.25, t: 0.15, d: 0.15 },
+        { f: 783.99, t: 0.30, d: 0.15 },
+        { f: 1046.50, t: 0.45, d: 0.35 },
+        { f: 783.99, t: 0.82, d: 0.15 },
+        { f: 1046.50, t: 0.98, d: 0.55 }
+      ];
+      melody.forEach(n => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        const start = audioCtx.currentTime + n.t;
+        osc.frequency.setValueAtTime(n.f, start);
+        gain.gain.setValueAtTime(0.18, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + n.d);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + n.d + 0.02);
+      });
+    }
+
+    /**
+     * Generatore di 18 operazioni matematiche per la classe 3ª primaria
+     * con 18 risultati NUMERI INTERAMENTE DISTINTI:
+     * - 5 Addizioni a 3 cifre
+     * - 5 Sottrazioni a 2 cifre SENZA prestito
+     * - 4 Moltiplicazioni con una cifra al moltiplicatore
+     * - 4 Divisioni con due cifre al dividendo e una al divisore (esatte)
+     */
+    function generateMathOperations() {
+      const usedResults = new Set();
+      const ops = [];
+
+      function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // 1. 5 Addizioni a 3 cifre (es. 125 + 234 = 359)
+      while (ops.length < 5) {
+        const a = randInt(112, 540);
+        const b = randInt(105, 430);
+        const res = a + b;
+        if (!usedResults.has(res)) {
+          usedResults.add(res);
+          ops.push({
+            expression: `${a} + ${b}`,
+            result: res,
+            type: "Addizione a 3 cifre"
+          });
+        }
+      }
+
+      // 2. 5 Sottrazioni a 2 cifre SENZA prestito (decine1 >= decine2 e unità1 >= unità2)
+      while (ops.length < 10) {
+        const d1 = randInt(4, 9);
+        const u1 = randInt(3, 9);
+        const d2 = randInt(1, d1 - 1);
+        const u2 = randInt(1, u1);
+        const a = d1 * 10 + u1;
+        const b = d2 * 10 + u2;
+        const res = a - b;
+        if (res >= 12 && !usedResults.has(res)) {
+          usedResults.add(res);
+          ops.push({
+            expression: `${a} - ${b}`,
+            result: res,
+            type: "Sottrazione senza prestito"
+          });
+        }
+      }
+
+      // 3. 4 Moltiplicazioni con 1 cifra al moltiplicatore (es. 24 × 3 = 72)
+      while (ops.length < 14) {
+        const a = randInt(12, 34);
+        const b = randInt(2, 5);
+        const res = a * b;
+        if (!usedResults.has(res)) {
+          usedResults.add(res);
+          ops.push({
+            expression: `${a} × ${b}`,
+            result: res,
+            type: "Moltiplicazione"
+          });
+        }
+      }
+
+      // 4. 4 Divisioni con 2 cifre al dividendo e 1 al divisore (esatte, es. 48 : 4 = 12)
+      while (ops.length < 18) {
+        const divisor = randInt(2, 6);
+        const quotient = randInt(11, 24);
+        const dividend = divisor * quotient;
+        if (dividend >= 22 && dividend <= 98 && !usedResults.has(quotient)) {
+          usedResults.add(quotient);
+          ops.push({
+            expression: `${dividend} : ${divisor}`,
+            result: quotient,
+            type: "Divisione"
+          });
+        }
+      }
+
+      // Mescola le operazioni e abbinale alle 18 lettere univoche
+      const shuffledOps = ops.sort(() => Math.random() - 0.5);
+      const shuffledLetters = [...UNIQUE_LETTERS].sort(() => Math.random() - 0.5);
+
+      slices = shuffledLetters.map((letter, idx) => ({
+        letter,
+        expression: shuffledOps[idx].expression,
+        result: shuffledOps[idx].result,
+        type: shuffledOps[idx].type,
+        solved: false,
+        color: SLICE_COLORS[idx % SLICE_COLORS.length]
+      }));
+    }
+
+    /**
+     * Disegna la Ruota della Fortuna sul Canvas responsive
+     */
+    function drawWheel() {
+      const canvas = document.getElementById('wheelCanvas');
+      if (!canvas) return;
+      const parent = canvas.parentElement;
+      const size = parent.clientWidth;
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const cx = size / 2;
+      const cy = size / 2;
+      const radius = size / 2 - 6;
+      const numSlices = slices.length;
+      const arc = (2 * Math.PI) / numSlices;
+
+      ctx.clearRect(0, 0, size, size);
+
+      slices.forEach((slice, i) => {
+        const startAngle = currentRotation + i * arc;
+        const endAngle = startAngle + arc;
+
+        // Spicchio
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.closePath();
+
+        // Colore spicchio (se già risolto, verde tenue con segno di spunta)
+        ctx.fillStyle = slice.solved ? "#c7e58c" : slice.color;
+        ctx.fill();
+
+        // Bordo separatore tra spicchi
+        // Testo lungo il raggio dello spicchio con l'uguaglianza "= LETTERA"
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(startAngle + arc / 2);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        const fontSize = Math.max(10, Math.min(13.8, size * 0.029));
+        ctx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
+
+        const labelText = slice.solved
+          ? `✓ ${slice.expression} = ${slice.letter}`
+          : `${slice.expression} = ${slice.letter}`;
+
+        // Leggero alone chiaro per garantire massimo contrasto e nitidezza
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.78)";
+        ctx.strokeText(labelText, radius - 11, 0);
+
+        ctx.fillStyle = slice.solved ? "#264d1c" : "#2f3a2c";
+        ctx.fillText(labelText, radius - 11, 0);
+        ctx.restore();
+      });
+
+      // Anello esterno decorativo cucito
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius - 4, 0, 2 * Math.PI);
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = "rgba(70, 115, 56, 0.55)";
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    /**
+     * Gira la ruota scegliendo uno spicchio non ancora risolto
+     */
+    function spinWheel() {
+      if (isSpinning) return;
+
+      const unsolvedIndices = slices
+        .map((s, idx) => (!s.solved ? idx : -1))
+        .filter(idx => idx !== -1);
+
+      if (unsolvedIndices.length === 0) {
+        showVictoryModal();
+        return;
+      }
+
+      initAudio();
+      isSpinning = true;
+      document.getElementById('spinBtn').disabled = true;
+      document.getElementById('opFeedback').textContent = "";
+
+      // Sceglie uno spicchio non risolto casuale
+      const targetIndex = unsolvedIndices[Math.floor(Math.random() * unsolvedIndices.length)];
+      const numSlices = slices.length;
+      const arc = (2 * Math.PI) / numSlices;
+
+      // Il puntatore è in alto (-Math.PI / 2).
+      // Vogliamo che il centro dello spicchio targetIndex finisca sotto -Math.PI / 2.
+      const sliceCenterOffset = targetIndex * arc + arc / 2;
+      const desiredFinalMod = ((-Math.PI / 2 - sliceCenterOffset) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+      const currentMod = ((currentRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+      let delta = desiredFinalMod - currentMod;
+      if (delta < 0) delta += 2 * Math.PI;
+
+      const extraSpins = 4 + Math.floor(Math.random() * 2); // 4 o 5 giri completi
+      const totalDelta = extraSpins * 2 * Math.PI + delta;
+
+      const startRotation = currentRotation;
+      const targetRotation = startRotation + totalDelta;
+      const duration = 3200;
+      const startTime = performance.now();
+      let lastTickSlice = -1;
+
+      function animateSpin(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Easing fluido (cubic-out)
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+
+        currentRotation = startRotation + totalDelta * easeOut;
+        drawWheel();
+
+        // Suono ticchettio e animazione puntatore al passaggio degli spicchi
+        const currentSlice = Math.floor((((-currentRotation - Math.PI / 2) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI)) / arc);
+        if (currentSlice !== lastTickSlice) {
+          lastTickSlice = currentSlice;
+          playTickSound();
+          const pointer = document.getElementById('wheelPointer');
+          pointer.classList.add('tick');
+          setTimeout(() => pointer.classList.remove('tick'), 60);
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          currentRotation = targetRotation;
+          drawWheel();
+          isSpinning = false;
+          document.getElementById('spinBtn').disabled = false;
+          selectSlice(targetIndex);
+        }
+      }
+
+      requestAnimationFrame(animateSpin);
+    }
+
+    /**
+     * Permette anche il clic diretto su uno spicchio della ruota
+     */
+    function handleCanvasClick(event) {
+      if (isSpinning) return;
+      const canvas = document.getElementById('wheelCanvas');
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left - rect.width / 2;
+      const y = event.clientY - rect.top - rect.height / 2;
+      const dist = Math.sqrt(x * x + y * y);
+
+      // Ignora clic sul pulsante centrale o fuori dal cerchio
+      if (dist < 48 || dist > rect.width / 2) return;
+
+      let angle = Math.atan2(y, x) - currentRotation;
+      angle = ((angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const arc = (2 * Math.PI) / slices.length;
+      const clickedIndex = Math.floor(angle / arc);
+
+      if (slices[clickedIndex]) {
+        selectSlice(clickedIndex);
+      }
+    }
+
+    /**
+     * Mostra l'operazione dello spicchio selezionato
+     */
+    function selectSlice(index) {
+      selectedSliceIndex = index;
+      const slice = slices[index];
+
+      document.getElementById('opIdleState').classList.add('hidden');
+      document.getElementById('opActiveState').classList.remove('hidden');
+
+      document.getElementById('opTypeBadge').textContent = slice.type;
+      document.getElementById('opExpression').textContent = `${slice.expression} = ?`;
+      document.getElementById('opTargetLetterHint').innerHTML = `Questa operazione sblocca la lettera <span class="inline-block px-2 py-0.2 bg-[#e5f0be] text-[#264d1c] rounded-md border border-[#467338]">${slice.letter}</span>`;
+
+      const input = document.getElementById('answerInput');
+      const feedback = document.getElementById('opFeedback');
+
+      if (slice.solved) {
+        input.value = slice.result;
+        input.disabled = true;
+        feedback.innerHTML = `<span class="text-[#35592a]">✅ Già risolta! Il numero <strong>${slice.result}</strong> corrisponde alla lettera <strong>${slice.letter}</strong>.</span>`;
+        highlightBoxesByNumber(slice.result);
+      } else {
+        input.value = '';
+        input.disabled = false;
+        feedback.textContent = '';
+        setTimeout(() => input.focus(), 80);
+      }
+    }
+
+    /**
+     * Verifica la risposta numerica inserita dal bambino
+     */
+    function checkMathAnswer(event) {
+      event.preventDefault();
+      if (selectedSliceIndex === null) return;
+
+      const slice = slices[selectedSliceIndex];
+      const input = document.getElementById('answerInput');
+      const userVal = parseInt(input.value, 10);
+      const feedback = document.getElementById('opFeedback');
+
+      if (isNaN(userVal)) return;
+
+      if (userVal === slice.result) {
+        slice.solved = true;
+        input.disabled = true;
+        playSuccessSound();
+        drawWheel();
+        renderLegend();
+        updateProgressBadge();
+
+        const msg = ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
+        feedback.innerHTML = `
+          <div class="p-2.5 rounded-xl bg-[#e5f0be] border border-[#467338] text-[#264d1c] mt-1">
+            <div>${msg}</div>
+            <div class="text-base mt-0.5">Il risultato <strong>${slice.result}</strong> corrisponde alla lettera <span class="inline-block px-2 py-0.5 bg-white rounded-lg border border-[#467338] text-lg font-extrabold text-[#35592a]">${slice.letter}</span> !</div>
+          </div>
+        `;
+
+        // Evidenzia tutte le caselline della frase con quel numero
+        highlightBoxesByNumber(slice.result);
+        const banner = document.getElementById('selectedLetterBanner');
+        banner.textContent = `Scrivi "${slice.letter}" nelle caselle ${slice.result}!`;
+        banner.classList.remove('hidden');
+
+        // Porta il focus alla prima casella vuota corrispondente
+        const firstEmpty = slotElements.find(s => s.result === slice.result && !s.filled);
+        if (firstEmpty) {
+          setTimeout(() => firstEmpty.input.focus(), 250);
+        }
+      } else {
+        playGentleErrorSound();
+        input.classList.add('wrong-shake');
+        setTimeout(() => input.classList.remove('wrong-shake'), 420);
+        feedback.innerHTML = `<span class="text-[#c0392b]">Quasi! Riprova a contare con calma 🌱</span>`;
+        input.select();
+      }
+    }
+
+    /**
+     * Costruisce la griglia delle caselline della frase misteriosa
+     */
+    function renderPhraseGrid() {
+      const container = document.getElementById('phraseContainer');
+      container.innerHTML = '';
+      slotElements = [];
+
+      // Mappa lettera normalizzata -> oggetto slice
+      const letterMap = {};
+      slices.forEach(s => {
+        letterMap[s.letter] = s;
+      });
+
+      const words = SECRET_PHRASE.split(' ');
+
+      words.forEach(word => {
+        const wordDiv = document.createElement('div');
+        wordDiv.className = 'word-group';
+
+        for (let i = 0; i < word.length; i++) {
+          const originalChar = word[i];
+          const normChar = normalizeChar(originalChar);
+
+          // Punteggiatura (es. punto finale)
+          if (!letterMap[normChar]) {
+            const punct = document.createElement('span');
+            punct.className = 'text-2xl font-bold text-[#35592a] self-center pb-4 px-1';
+            punct.textContent = originalChar;
+            wordDiv.appendChild(punct);
+            continue;
+          }
+
+          const sliceData = letterMap[normChar];
+          const slotDiv = document.createElement('div');
+          slotDiv.className = 'letter-slot';
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.maxLength = 1;
+          input.className = 'letter-box';
+          input.setAttribute('aria-label', `Lettera per il numero ${sliceData.result}`);
+          input.dataset.expected = normChar;
+          input.dataset.original = originalChar;
+          input.dataset.result = sliceData.result;
+
+          const codeLabel = document.createElement('span');
+          codeLabel.className = 'code-number';
+          codeLabel.textContent = sliceData.result;
+
+          const slotObj = {
+            input,
+            codeLabel,
+            slotDiv,
+            expected: normChar,
+            original: originalChar,
+            result: sliceData.result,
+            filled: false
+          };
+          slotElements.push(slotObj);
+
+          // Gestione inserimento lettera nella casellina
+          input.addEventListener('input', (e) => {
+            const typed = normalizeChar(e.target.value.trim());
+            if (!typed) return;
+
+            if (typed === slotObj.expected) {
+              fillSlotCorrectly(slotObj);
+            } else {
+              playGentleErrorSound();
+              input.classList.add('wrong-shake');
+              setTimeout(() => {
+                input.classList.remove('wrong-shake');
+                input.value = '';
+              }, 380);
+            }
+          });
+
+          // Clic su casella: se la lettera è già stata sbloccata dalla ruota,
+          // consente di auto-inserirla facilmente al doppio clic o se il bambino clicca dopo averla scoperta
+          input.addEventListener('click', () => {
+            const matchingSlice = slices.find(s => s.result === slotObj.result);
+            if (matchingSlice && matchingSlice.solved && !slotObj.filled) {
+              fillSlotCorrectly(slotObj);
+            }
+          });
+
+          slotDiv.appendChild(input);
+          slotDiv.appendChild(codeLabel);
+          wordDiv.appendChild(slotDiv);
+        }
+
+        container.appendChild(wordDiv);
+      });
+    }
+
+    /**
+     * Compila correttamente una casellina con animazione di petali che sbocciano
+     */
+    function fillSlotCorrectly(slotObj) {
+      if (slotObj.filled) return;
+      slotObj.filled = true;
+      slotObj.input.value = slotObj.original;
+      slotObj.input.readOnly = true;
+      slotObj.input.classList.remove('highlighted-num');
+      slotObj.input.classList.add('solved');
+      slotObj.codeLabel.classList.add('discovered-code');
+
+      // Se l'operazione corrispondente non era ancora segnata come risolta (es. tramite Aiuto),
+      // verifica se tutte le caselle di quella lettera sono piene
+      const matchingSlice = slices.find(s => s.result === slotObj.result);
+      if (matchingSlice && !matchingSlice.solved) {
+        matchingSlice.solved = true;
+        drawWheel();
+        renderLegend();
+        updateProgressBadge();
+      }
+
+      playSuccessSound();
+      spawnFlowerParticle(slotObj.slotDiv);
+
+      const encouragementEl = document.getElementById('liveEncouragement');
+      encouragementEl.textContent = ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
+
+      // Passa automaticamente alla prossima casella vuota con lo stesso numero
+      const nextSame = slotElements.find(s => s.result === slotObj.result && !s.filled);
+      if (nextSame) {
+        nextSame.input.focus();
+      } else {
+        document.getElementById('selectedLetterBanner').classList.add('hidden');
+      }
+
+      checkWholePhraseComplete();
+    }
+
+    /**
+     * Effetto visivo di fiorellino che sboccia sopra la casella
+     */
+    function spawnFlowerParticle(parentEl) {
+      const flowers = ['🌸', '🌼', '🌷', '🌻', '🌱', '🍀'];
+      const particle = document.createElement('span');
+      particle.className = 'bloom-particle';
+      particle.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+      parentEl.appendChild(particle);
+      setTimeout(() => particle.remove(), 1150);
+    }
+
+    /**
+     * Evidenzia le caselline corrispondenti a un risultato numerico
+     */
+    function highlightBoxesByNumber(num) {
+      slotElements.forEach(s => {
+        if (!s.filled && s.result === num) {
+          s.input.classList.add('highlighted-num');
+        } else {
+          s.input.classList.remove('highlighted-num');
+        }
+      });
+    }
+
+    /**
+     * Renderizza la chiave/legenda delle 18 lettere scoperte
+     */
+    function renderLegend() {
+      const grid = document.getElementById('legendGrid');
+      grid.innerHTML = '';
+
+      // Ordina per risultato numerico crescente per facilitare la ricerca ai bambini
+      const sortedSlices = [...slices].sort((a, b) => a.result - b.result);
+
+      sortedSlices.forEach(slice => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = slice.solved
+          ? 'p-2 rounded-xl bg-[#e5f0be] border-2 border-[#467338] text-[#264d1c] font-bold text-sm flex items-center justify-center gap-1.5 shadow-xs hover:scale-105 transition cursor-pointer'
+          : 'p-2 rounded-xl bg-[#fcfbf7] border-2 border-dashed border-[#b7d66b] text-[#7a8c6e] font-bold text-sm flex items-center justify-center gap-1.5 cursor-default';
+
+        if (slice.solved) {
+          card.innerHTML = `<span>${slice.result}</span> <span>=</span> <span class="text-base font-extrabold text-[#35592a]">${slice.letter}</span>`;
+          card.title = `Clicca per inserire la lettera ${slice.letter} nelle caselle ${slice.result}`;
+          card.onclick = () => {
+            highlightBoxesByNumber(slice.result);
+            const nextEmpty = slotElements.find(s => s.result === slice.result && !s.filled);
+            if (nextEmpty) {
+              fillSlotCorrectly(nextEmpty);
+            }
+          };
+        } else {
+          card.innerHTML = `<span>${slice.result}</span> <span>=</span> <span>?</span>`;
+        }
+
+        grid.appendChild(card);
+      });
+    }
+
+    /**
+     * Aggiorna il contatore delle lettere scoperte
+     */
+    function updateProgressBadge() {
+      const solvedCount = slices.filter(s => s.solved).length;
+      document.getElementById('progressBadge').textContent = `Lettere: ${solvedCount} / ${slices.length}`;
+    }
+
+    /**
+     * Modalità Aiuto: rivela automaticamente una lettera non ancora scoperta
+     */
+    function useHint() {
+      if (hintsRemaining <= 0) return;
+
+      const unsolvedSlices = slices.filter(s => !s.solved);
+      if (unsolvedSlices.length === 0) return;
+
+      hintsRemaining--;
+      document.getElementById('hintsLeft').textContent = hintsRemaining;
+      if (hintsRemaining === 0) {
+        document.getElementById('helpBtn').disabled = true;
+      }
+
+      const chosen = unsolvedSlices[Math.floor(Math.random() * unsolvedSlices.length)];
+      chosen.solved = true;
+
+      drawWheel();
+      renderLegend();
+      updateProgressBadge();
+
+      // Compila la prima casellina di questa lettera e evidenzia le altre
+      const matchingSlots = slotElements.filter(s => s.result === chosen.result && !s.filled);
+      if (matchingSlots.length > 0) {
+        fillSlotCorrectly(matchingSlots[0]);
+        highlightBoxesByNumber(chosen.result);
+      }
+
+      const feedback = document.getElementById('opFeedback');
+      feedback.innerHTML = `
+        <div class="p-2 rounded-xl bg-[#fff8dc] border border-[#f2c94c] text-[#5c4912]">
+          💡 Aiuto del procione: <strong>${chosen.expression} = ${chosen.result}</strong> (Lettera <strong>${chosen.letter}</strong>)!
+        </div>
+      `;
+    }
+
+    /**
+     * Controlla se tutta la frase è stata completata
+     */
+    function checkWholePhraseComplete() {
+      const allFilled = slotElements.every(s => s.filled);
+      if (allFilled) {
+        setTimeout(() => {
+          playVictoryFanfare();
+          launchPetalShower();
+          showVictoryModal();
+        }, 500);
+      }
+    }
+
+    function showVictoryModal() {
+      const modal = document.getElementById('victoryModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeVictoryModal() {
+      const modal = document.getElementById('victoryModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    /**
+     * Cascata di petali e fiori festosi sullo schermo
+     */
+    function launchPetalShower() {
+      const icons = ['🌸', '🌼', '🌷', '🌻', '🍃', '✨'];
+      for (let i = 0; i < 48; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'confetti-petal';
+          el.textContent = icons[Math.floor(Math.random() * icons.length)];
+          el.style.left = `${Math.random() * 100}vw`;
+          el.style.fontSize = `${18 + Math.random() * 18}px`;
+          el.style.animationDuration = `${2.6 + Math.random() * 2.4}s`;
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5200);
+        }, i * 65);
+      }
+    }
+
+    /**
+     * Avvia o riavvia il gioco con operazioni nuove generate casualmente
+     */
+    function resetGameNewNumbers() {
+      isSpinning = false;
+      selectedSliceIndex = null;
+      hintsRemaining = 3;
+      document.getElementById('hintsLeft').textContent = hintsRemaining;
+      document.getElementById('helpBtn').disabled = false;
+      document.getElementById('spinBtn').disabled = false;
+      document.getElementById('opIdleState').classList.remove('hidden');
+      document.getElementById('opActiveState').classList.add('hidden');
+      document.getElementById('opFeedback').textContent = '';
+      document.getElementById('selectedLetterBanner').classList.add('hidden');
+      document.getElementById('liveEncouragement').textContent = 'Ogni risposta giusta fa crescere il giardino della gentilezza! 🌿';
+
+      generateMathOperations();
+      drawWheel();
+      renderPhraseGrid();
+      renderLegend();
+      updateProgressBadge();
+    }
+
+    // Inizializzazione al caricamento della finestra
+    window.addEventListener('load', () => {
+      const canvas = document.getElementById('wheelCanvas');
+      canvas.addEventListener('click', handleCanvasClick);
+      resetGameNewNumbers();
+    });
+
+    window.addEventListener('resize', () => {
+      drawWheel();
+    });
+  </script>
+</body>
+</html>
